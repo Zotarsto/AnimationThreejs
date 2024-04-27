@@ -3,14 +3,13 @@
 	|   INFORMACIÓN  DEL  PROYECTO   |
 	 --------------------------------
 
-	Autores:		+ 201513362 - VARA FORTIS, JEANETTE
-					+ 201562720 - SÁNCHEZ MARTÍNEZ, ARTURO
+    Creación de una aplicación Web 3D interactiva
 
-	Propósito:		1. Importar modelos y animaciones 3D en Blender
-					2. Programar una aplicación Web interactiva
-					3. Permitir al usuario interactuar con modelos y animaciones
+	Autores:		+ 202054738 - JUAN MANUEL RODRIGUEZ SOTARRIBA
+					+ 202044217 - MARVIN LOPEZ SANTIAGO
+                    + 201513712 - DIWSGEN LOPEZ LOZADA
 
-	Versión bases:	three.js: https://threejs.org/examples/?q=skinning#webgl_animation_skinning_morph
+	Propósito:		1. Desarrollar una aplicación Web 3D que permita al usuario interactuar con contenido 3D.   
 **/
 import * as THREE from './build/three.module.js';
 
@@ -19,13 +18,16 @@ import { GUI } from './src/jsm/libs/dat.gui.module.js';
 import { OrbitControls } from './src/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from './src/jsm/loaders/GLTFLoader.js';
 
-let container, stats, clock, gui, mixer, actions, activeAction, previousAction;
-let camera, scene, renderer, model;
+let container, stats, clock, gui, mixer, actions1, activeAction, previousAction;
+let camera, scene, renderer, model0, model;
 
 // CONFIGURACIÓN DE PROPIEDAD Y VALOR INICIAL DEL CICLO DE ANIMACIÓN (CLIP)
 // EL NOMBRE DE ESTA PROPIEDAD ('ciclo') ESTÁ VINCULADO CON EL NOMBRE A MOSTRAR EN EL MENÚ
 // i.e. LO QUE SE MUESTRA EN EL MENÚ ES 'ciclo'. 	
 const api = { ciclo: 'Caminar' };
+
+const actions = {};
+
 
 init();
 animate();
@@ -34,62 +36,56 @@ function init() {
     // SE CREA UN CONTENEDOR Y SE VINCULA CON EL DOCUMENTO (HTML)
     container = document.createElement( 'div' );
     document.body.appendChild( container );
+
     // SE CREA Y CONFIGURA LA CÁMARA PRINCIPAL
-    camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 0.25, 100 );
-    camera.position.set( - 5, 3, 10 );
+    camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 0.25, 100 );
+    camera.position.set( - 10, 3, 10 );
     camera.lookAt( new THREE.Vector3( 0, 2, 0 ) );
+
     // SE CREA LA ESCENA Y SE ASIGNA COLOR DE FONDO
     scene = new THREE.Scene();
     // SE CONFIGURA EL COLOR DE FONDO
-    scene.background = new THREE.Color( 0x000033 ); //e0e0e0
+    scene.background = new THREE.Color( 0x84b6f4 ); //e0e0e0
     // SE CONFIGURA LA NEBLINA
-    scene.fog = new THREE.Fog( 0x264d00, 10, 17 ); //0x90aede, 20, 100
+    //scene.fog = new THREE.Fog( 0x264d00, 10, 17 ); //0x90aede, 20, 100
 
     // SE CREA UN RELOJ
     clock = new THREE.Clock();
 
+
     // ------------------ LUCES ------------------
-    // LUZ HEMISFÉRICA
-    const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
-    hemiLight.position.set( 0, 20, 0 );
-    scene.add( hemiLight );
+
     // LUZ DIRECCIONAL
-    const dirLight = new THREE.DirectionalLight( 0xffffff );
-    dirLight.position.set( 0, 20, 10 );
+    const dirLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+    dirLight.position.set( 1, 20, 10 );
     scene.add( dirLight );
 
-    // ------------------ PISO ------------------
-    // CREACIPON DE LA MALLA PARA EL PSIO
-    const mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 15, 15 ), 
-                                // MATERIAL (color)
-                                    new THREE.MeshPhongMaterial( { color: 0x001a00, depthWrite: false } ) );
-    mesh.rotation.x = - Math.PI / 2;
-    scene.add( mesh );
-    // CREACIÓN DE CUADRICULA "GUÍA"
-    const grid = new THREE.GridHelper( 15, 4, 0xff0000, 0x000000 );
-    // OPACIDAD DE LAS LÍNEAS (lo opuesto a transparencia)
-    //		0.0 = transparente
-    //		1.0 = sin transparencia
-    grid.material.opacity = 0.2;
-    grid.material.transparent = true;
-    scene.add( grid );
+    // ------------------ ESCENARIO -----------------
+    // Cargar el modelo del escenario
+    const loaderEscenario = new GLTFLoader();
+
+    loaderEscenario.load( './src/models/gltf/escenario.glb',
+    function ( gltf ) {
+
+        // Obtener el modelo del escenario del archivo GLTF (.glb)
+        const modeloEscenario = gltf.scene;
+
+        // Agregar el modelo del escenario a la escena principal
+        scene.add( modeloEscenario );
+
+    }, undefined, function ( e ) {
+
+    // Mostrar información de error en caso de fallo en la carga
+    console.error( e );
+    } );
+
 
     // ------------------ MODELO 3D ------------------
 
-    const loader = new GLTFLoader();
-    loader.load( './src/models/gltf/super_woman.glb', function ( gltf ) {
-        // SE OBTIENE EL MODELO (scene) DEL ARCHIVO GLTF (.GLB)
-        model = gltf.scene;
-        // SE AGREGA A LA ESCENA PRINCIPAL
-        scene.add( model );
 
-        // CREACIÓN DE LA INTERFAZ GRÁFICA
-        createGUI( model, gltf.animations );
+    //------------------ Animaciones ------------------
 
-    }, undefined, function ( e ) {
-        // SE MUESTRA INFORMACIÓN DE ERROR
-        console.error( e );
-    } );
+
 
     // PROCESO DE RENDERIZADO DE LA ESCENA
     renderer = new THREE.WebGLRenderer( { antialias: true } );
@@ -114,99 +110,7 @@ function init() {
 
 }
 
-function createGUI( model, animations ) {
-    // OPCIONES (CONSTANTES) PARA MENÚ DE CICLOS
-    const ciclos = [ 'Caminar', 'Saltar', 'Saludar', 'Bailar', 'Patinar' ];
-    // OPCIONES (CONSTANTES) PARA MENÚ DE CAPTURAS DE MOVIMIENTO
-    const capturas = [ 'Modelar', 'Drunk', 'Box', 'Salsa' ];
 
-    // INSTANCIACIÓN DEL OBJETO QUE CREA LA INTERFAZ
-    gui = new GUI();
-    // INSTANCIACIÓN DEL OBJETO QUE CONTROLA LA TRANSICIÓN (MEZCLA) ENTRE CLIPS DE ANIMACIÓN
-    mixer = new THREE.AnimationMixer( model );
-
-    // ARREGLO VACÍO PARA LOS "CLIPS" DE ANIMACIÓN
-    actions = {};
-
-    // SE VISUALIZA EN CONSOLA LOS NOMBRES DE LAS ANIMACIONES
-    console.log('Lista de animaciones: ');
-    console.log(animations);
-    
-    // RECORRIDO DEL ARREGLO DE ANIMACIONES PASADO COMO PARÁMETRO
-    for ( let i = 0; i < animations.length; i ++ ) {
-        // TRANSFORMACIÓN DE ANIMACIONES A "CLIPS"
-        const clip = animations[ i ];
-        const action = mixer.clipAction( clip );
-        actions[ clip.name ] = action;
-
-        // SE CONFIGURAN LOS CLIPS QUE << NO >> REALIZARÁN UN LOOP INFINITO QUE SON:
-        //
-        // 	1. Todos aquellos cuyos nombres aparecen en el arreglo "capturas"
-        // 		--> capturas.indexOf( clip.name ) >= 0
-        //
-        //	2. Sólo 'Death', 'Sitting' y 'Standing' del arreglo ciclos
-        // 		--> ciclos.indexOf( clip.name ) >= 4
-        //
-        if ( capturas.indexOf( clip.name ) >= 0 || ciclos.indexOf( clip.name ) >= 5 ) {
-            action.clampWhenFinished = true;
-            action.loop = THREE.LoopOnce;
-        }
-    }
-
-    // ------------------ CICLOS ------------------
-    // SE CONFIGURA EL MENÚ PARA SELECCIÓN DE CICLOS
-    const ciclosFolder = gui.addFolder( 'Ciclos de Animación' );
-    // SE CONFIGURA SUB-MENÚ (LISTA DESPLEGABLE)
-    const clipCtrl = ciclosFolder.add( api, 'ciclo' ).options( ciclos );
-
-    // SE DEFINE FUNCIÓN TIPO CallBack, EJECUTABLE CADA QUE SE SELECCIONE UNA OPCIÓN DEL MENÚ DESPLEGABLE
-    clipCtrl.onChange( function () {
-        console.log('Se seleccionó la opción "'+api.ciclo+'""');
-        // SEGÚN EL CICLO SELECCIONADO, SE USA SU NOMBRE Y UN VALOR NUMÉRICO (duración)
-        fadeToAction( api.ciclo, 0.5 );
-    } );
-    // SE CREA MENÚ
-    ciclosFolder.open();
-
-    // ------------------ CAPTURAS ------------------
-    // SE CONFIGURA EL MENÚ PARA SELECCIÓN DE CAPTURAS
-    const capturaFolder = gui.addFolder( 'Captura de Movimiento' );
-
-    // SE DEFINE FUNCIÓN TIPO CallBack, EJECUTABLE CADA QUE SE SELECCIONE UNA OPCIÓN DEL MENÚ
-    function crearCapturaCallback( name ) {
-        api[ name ] = function () {
-            console.log('se dio clic sobre la opción "'+name+'""');
-            // SE ACTIVA LA ANIMACIÓN DE LA CAPTURA DE MOVIMIENTO, CON UNA TRANSICIÓN DE 0.2 SEGUNDOS
-            fadeToAction( name, 0.2 );
-            // SE ESPECIFICA LA FUNCIÓN CallBack QUE REGRESA AL ESTADO PREVIO (ciclo de animación) 
-            mixer.addEventListener( 'finished', restoreState );
-        };
-        // SE LA OPCIÓN CON SU FUNCIÓN Y EL NOMBRE DE LA ANIMACIÓN
-        capturaFolder.add( api, name );
-    }
-
-    // SE DEFINE FUNCIÓN TIPO CallBack, EJECUTABLE CADA QUE SE FINALICE UNA ACCIÓN
-    function restoreState() {
-        // SE REMUEVE LA FUNCIÓN CallBack QUE REGRESA AL ESTADO PREVIO (ciclo de animación) 
-        mixer.removeEventListener( 'finished', restoreState );
-        // SE RE-ACTIVA EL CICLO DE ANIMACIÓN ACTUAL, CON UNA TRANSICIÓN DE 0.2 SEGUNDOS
-        fadeToAction( api.ciclo, 0.2 );
-    }
-    
-    // SE AGREGAN LAS OPCIONES AL MENÚ (YA CONFIGURADAS CON SU CallBack)
-    for ( let i = 0; i < capturas.length; i ++ ) {
-        crearCapturaCallback( capturas[ i ] );
-    }
-    // SE CREA MENÚ
-    capturaFolder.open();
-
-    // SE DEFINE CICLO DE ANIMACIÓN INICIAL
-    activeAction = actions[ 'Caminar' ];
-    activeAction.play();
-}
-/** ---------------------------------------------------------------------------------------------
-DE PREFERENCIA ***NO MODIFICAR*** LAS SIGUIENTES FUNCIONES A MENOS QUE SEA ESTRICAMENTE NECESARIO
---------------------------------------------------------------------------------------------- **/
 
 // FUNCIÓN PARA EL CONTROL DE TRANSICIONES ENTRE ANIMACIONES
 function fadeToAction( name, duration ) {
@@ -243,3 +147,48 @@ function animate() {
     renderer.render( scene, camera );
     stats.update();
 }
+
+
+// Definir una función para cambiar la animación
+function cambiarAnimacion(nombreAnimacion) {
+    // Cambiar la visibilidad de los modelos
+    model0.visible = !model0.visible;
+
+    // Detener todas las animaciones anteriores
+    mixer.stopAllAction();
+
+    // Reproducir la nueva animación
+    const action = actions[nombreAnimacion];
+    // Configurar la acción para que se ejecute solo una vez
+    action.loop = THREE.LoopOnce;
+    // Reproducir la animación
+    action.play();
+
+    // Temporizador para verificar si la animación ha terminado
+    const duracionAnimacion = action.getClip().duration;
+    const tiempoInicio = Date.now();
+
+    function verificarFinalizacionAnimacion() {
+        const tiempoActual = Date.now();
+        const tiempoTranscurrido = tiempoActual - tiempoInicio;
+        if (tiempoTranscurrido >= duracionAnimacion * 1000) {
+            // La animación ha terminado
+            model.visible = !model.visible;
+            model0.visible = true;
+        } else {
+            // La animación todavía está en curso, seguir verificando
+            requestAnimationFrame(verificarFinalizacionAnimacion);
+        }
+    }
+
+    // Comenzar la verificación de finalización de la animación
+    requestAnimationFrame(verificarFinalizacionAnimacion);
+}
+
+
+// Asignar un evento de teclado para la letra B
+document.addEventListener('keydown', (event) => {
+    if (event.key === 'b') {
+        cambiarAnimacion('Silla'); // Cambiar la animación al presionar la tecla B
+    }
+});

@@ -1,25 +1,34 @@
+@import url('https://fonts.googleapis.com/css2?family=Jersey+10&display=swap');
+
 body {
-	margin: 0;
-	background-color: #000;
+	background-color: #000000;
 	color: #fff;
-	font-family: Monospace;
-	font-size: 13px;
-	line-height: 24px;
-	overscroll-behavior: none;
+	line-height: 5px;
 }
-
+h1{
+	font-family: "Jersey 10", sans-serif;
+	font-size: 40px;
+}
+h2{
+	font-family: "Jersey 10", sans-serif;
+	font-size: 35px;	
+	margin-bottom: 35px;
+}
 a {
-	color: #ff0;
+	color: rgb(62, 190, 23);
 	text-decoration: none;
+	text-align: center;
+	font-family: 'Jersey 10', sans-serif;
+	font-size: 25px;;
+	margin-left: 10px;
+	margin-right: 10px;
 }
-
 a:hover {
 	text-decoration: underline;
-}
+	font-size: 27px;
+	margin-left: 15px;
+	margin-right: 15px;
 
-button {
-	cursor: pointer;
-	text-transform: uppercase;
 }
 
 #info {
@@ -29,52 +38,10 @@ button {
 	padding: 10px;
 	box-sizing: border-box;
 	text-align: center;
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	pointer-events: none;
-	z-index: 1; /* TODO Solve this in HTML */
 }
 
 a, button, input, select {
 	pointer-events: auto;
 }
 
-.dg.ac {
-	-moz-user-select: none;
-	-webkit-user-select: none;
-	-ms-user-select: none;
-	user-select: none;
-	z-index: 2 !important; /* TODO Solve this in HTML */
-}
 
-#overlay {
-	position: absolute;
-	z-index: 2;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: rgba(0,0,0,0.7);
-}
-
-	#overlay button {
-		background: #ffffff;
-		border: 0;
-		color: #000000;
-		padding: 16px 20px;
-		text-transform: uppercase;
-		cursor: pointer;
-	}
-
-#notSupported {
-	width: 50%;
-	margin: auto;
-	background-color: #f00;
-	margin-top: 20px;
-	padding: 10px;
-}
