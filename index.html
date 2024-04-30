@@ -14,21 +14,56 @@
 
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>Animación por Computadora</title>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-		<link type="text/css" rel="stylesheet" href="main.css">
-		<script type="module" src="./main.js"></script>
-	</head>
 
-	<body>
-		<div id="info">
-			<h1>ANIMACIÓN POR COMPUTADORA</h1><br/>
-			<h2>Integrantes </h2><br/>
-			<a id="z1" href="https://github.com/Zotarsto" target="_blank" rel="noopener">Juan Manuel Rodriguez </a>
-			<a id="z2" href="https://github.com/DiwsgenLop" target="_blank" rel="noopener">Diwsgen Lopez Lozada</a>
-		 	<a id="z3" href="https://github.com/MortyGoG" target="_blank" rel="noopener">Marvin Lopez Lozada<br/>
-		</div>
-	</body>
+<head>
+	<title>Animación por Computadora</title>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+	<!-- <script>
+		navigator.mediaDevices.getUserMedia({ audio: true })
+			.then(function (stream) {
+				// El usuario ha concedido permiso
+				const audioSource = audioContext.createMediaStreamSource(stream);
+				// Procesar el flujo de audio
+			})
+			.catch(function (error) {
+				// El usuario ha denegado el permiso
+				console.error('El usuario ha denegado el acceso al micrófono:', error);
+			});
+
+	</script> -->
+	<link type="text/css" rel="stylesheet" href="main.css">
+	<script type="module" src="./main.js"></script>
+	<div>
+		<button id="playButton" onclick="togglePlay()">
+			<img id="playIcon" src="./src/images/off.svg" alt="Icono de reproducción" />
+		</button>
+		<script>
+			function togglePlay() {
+				const playIcon = document.getElementById('playIcon');
+				const playText = document.getElementById('playText');
+
+				// Cambiar la imagen del icono al estado presionado
+				if (playIcon.src.endsWith('off.svg')) {
+					playIcon.src = './src/images/on.svg';
+				} else {
+					// Cambiar la imagen del icono al estado inicial
+					playIcon.src = './src/images/off.svg';
+				}
+			}
+
+		</script>
+	</div>
+</head>
+
+<body>
+	<div id="info">
+		<h1>ANIMACIÓN POR COMPUTADORA</h1><br />
+		<h2>Integrantes </h2><br />
+		<a id="z1" href="https://github.com/Zotarsto" target="_blank" rel="noopener">Juan Manuel Ochoa </a>
+		<a id="z2" href="https://github.com/DiwsgenLop" target="_blank" rel="noopener">Diwsgen Lopez Lozada</a>
+		<a id="z3" href="https://github.com/MortyGoG" target="_blank" rel="noopener">Marvin Lopez Santiago</a>
+	</div>
+</body>
+
 </html>

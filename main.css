@@ -40,6 +40,28 @@ a:hover {
 	text-align: center;
 }
 
+#playButton {
+	background-color: rgb(62, 190, 23);
+	color: #000;
+	font-family: 'Jersey 10', sans-serif;
+	font-size: 20px;
+	padding: 10px 20px;
+	border: none;
+	cursor: pointer;
+	position: fixed; /* Posición fija */
+	bottom: 20px; /* Distancia desde abajo */
+	right: 20px; /* Distancia desde la derecha */
+	z-index: 1000; /* Z-index para asegurarse de que esté en la parte superior */
+}
+
+#playButton:active #playIcon {
+    transform: scale(0.8); /* Reducir el tamaño del icono al presionar */
+}
+
+#playButton:active #playText {
+    transform: scale(0.8); /* Reducir el tamaño del texto al presionar */
+}
+
 a, button, input, select {
 	pointer-events: auto;
 }
